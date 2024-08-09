@@ -1,0 +1,297 @@
+{
+  "requestHeader": {
+    "requestType": "2000",
+    "requestPriority": null,
+    "requestId": null,
+    "requestDate": 0,
+    "expireDate": 0,
+    "response": {
+      "responseCode": null,
+      "responseDate": 0,
+      "responseMessage": null
+    }
+  },
+  "messageStatus": {
+    "status": 0,
+    "statusDate": 0
+  },
+  "messageHeader": {
+    "messageCorrelationId":  "4431223c-7597-4cf8-a58a-235f1575b6022",
+    "sequence": 0,
+    "totalSequence": 0,
+    "messageDate": 0,
+    "region": null,
+    "messageSources": [
+      {
+        "roleType": "roleType",
+        "entityCode": "entityCode"
+      }
+    ]
+  },
+  "messageBody": {
+    "shipments": [
+      {
+        "shipmentHeader": {
+          "shipmentCorrelationId": "4431223c-7597-4cf8-a58a-235f1575b6033",
+          "origin": {
+            "entityCode": "50050",
+            "addressFrom": {
+              "hashKey": null,
+              "contact": "dEMO - AusPost",
+              "contactPhone": "0395100277",
+              "description1": "1",
+              "description2": "main Street",
+              "description3": null,
+              "description4": "hese are the pickup instructions.",
+              "description5": null,
+              "city": "mELBOURNE",
+              "state": "VIC",
+              "country": "aU",
+              "zipCode": "3000",
+              "validated": false,
+              "validatedEntity": null,
+              "validatedDate": 0
+            }
+          },
+          "destination": {
+            "entityCode": null,
+            "addressTo": {
+              "hashKey": null,
+              "contact": "tom",
+              "contactPhone": "22345678",
+              "description1": "canberra Centre 148 Bunda St",
+              "description2": "",
+              "description3": null,
+              "description4": "these are the delivery special instructions.",
+              "description5": null,
+              "city": "canberra",
+              "state": "VIC",
+              "country": "aU",
+              "zipCode": "2601",
+              "validated": false,
+              "validatedEntity": null,
+              "validatedDate": 0
+            },
+            "aliasAddress": {
+              "hashKey": null,
+              "contact": null,
+              "contactPhone": null,
+              "description1": null,
+              "description2": null,
+              "description3": null,
+              "description4": null,
+              "description5": null,
+              "city": null,
+              "state": null,
+              "country": null,
+              "zipCode": null,
+              "validated": false,
+              "validatedEntity": null,
+              "validatedDate": 0
+            }
+          },
+          "returnLocation": {
+            "entityCode": null,
+            "returnAddress": {
+              "hashKey": null,
+              "contact": null,
+              "contactPhone": null,
+              "description1": null,
+              "description2": null,
+              "description3": null,
+              "description4": null,
+              "description5": null,
+              "city": null,
+              "state": null,
+              "country": null,
+              "zipCode": null,
+              "validated": false,
+              "validatedEntity": null,
+              "validatedDate": 0
+            }
+          },
+          "carrier": {
+            "carrierName": "",
+            "carrierCode": "cARRIER01"
+          }
+        },
+        "transitDetails": {
+          "bol": null,
+          "masterBOL": null,
+          "shipmentId": "8ocK0EFq5mEAAAGEFGwCFlNd",
+          "masterTrackingNo": null,
+          "trackingNo": null,
+          "altTrackingNo": null,
+          "transitMode": "parcel Post",
+          "shippedShipmentNo": null,
+          "shippedTrailerNo": null,
+          "shippedPalletNo": null,
+          "routeRuleCode": null,
+          "routeOverrideCode": null,
+          "sortCode": null,
+          "airportCode": null,
+          "hubCode": null,
+          "isResidential": false,
+          "isAuthorityLeave": false,
+          "isSignatureRequired": false,
+          "isSaturdayDelivery": false,
+          "frontBackOfHouse": null,
+          "region": null,
+          "dateDetails": {
+            "plannedShipDate": 1669792886,
+            "shippedDate": 0,
+            "estimatedDeliveryDate": 0,
+            "plannedDeliveryDate": 0,
+            "deliveredDate": 0,
+            "inStoreDate": 0,
+            "transitDays": 0,
+            "cutOffTimeApplied": false,
+            "cutOffTimeHH": 0,
+            "cutOffTimeMM": 0
+          },
+          "labelDetails": {
+            "label": null,
+            "format": "zPL",
+            "size": {
+              "width": 0,
+              "height": 0,
+              "uom": null
+            }
+          }
+        },
+        "orderDetails": {
+          "orderId": "324234",
+          "orderType": null,
+          "orderCreatedDate": 0,
+          "shipmentContents": null,
+          "productDepartment": null,
+          "requestedCarrierCode": null,
+          "requestedShipMode": null,
+          "shipmentFeeApplied": false,
+          "isHazMat": false,
+          "isINTL": false,
+          "isRural": false,
+          "isPOBox": false,
+          "isMilitary": false,
+          "isXborderEligible": false,
+          "isEmployee": false,
+          "discountedOrder": false,
+          "isLoyalty": false,
+          "serviceSelectedByGEC": false,
+          "wmsstatus": null,
+          "shipVia": null,
+          "channel": null,
+          "subChannel": null,
+          "path": null,
+          "laneName": null,
+          "tclpnid": null,
+          "referenceLPN": null,
+          "integration": null,
+          "orderOrigin": null,
+          "declaredValueDetails": {
+            "value": 0,
+            "currency": null
+          },
+          "billingDetails": {
+            "entityCode": null,
+            "billTo": null,
+            "billToAccount": null,
+            "parentAccount": null,
+            "billToAddress": {
+              "hashKey": null,
+              "contact": null,
+              "contactPhone": null,
+              "description1": null,
+              "description2": null,
+              "description3": null,
+              "description4": null,
+              "description5": null,
+              "city": null,
+              "state": null,
+              "country": null,
+              "zipCode": null,
+              "validated": false,
+              "validatedEntity": null,
+              "validatedDate": 0
+            }
+          }
+        },
+        "shipmentStatus": {
+          "status": 0,
+          "statusDate": 0
+        },
+        "shipmentPieces": [
+          {
+            "sequence": 10,
+            "totalSequence": 10,
+            "dimensionDetails": {
+              "length": 10,
+              "width": 10,
+              "height": 10,
+              "uom": null
+            },
+            "weightDetails": {
+              "value": 10,
+              "uom": null
+            },
+            "cartonsDetails": [
+              {
+                "itemCode": "7E55",
+                "itemExtendedCode": null,
+                "itemSequence": 1,
+                "itemSequenceTotal": 1,
+                "description": "cool and Collected Jacket BLK 4",
+                "quantity": 2,
+                "weightDetails": {
+                  "value": 1.0,
+                  "uom": "eACH"
+                },
+                "itemValue": {
+                  "value": 10,
+                  "currency": null
+                },
+                "dimensionDetails": {
+                  "length": 38.7,
+                  "width": 27.8,
+                  "height": 5.1,
+                  "uom": null
+                },
+                "tradeDetails": {
+                  "itemsContents": null,
+                  "manufacturerID": null,
+                  "countryOfOriginCode": null,
+                  "hsTariffNumber": null,
+                  "declaredValueDetails": {
+                    "value": 0,
+                    "currency": null
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "shipmentResponse": {
+          "responseCode": null,
+          "responseDate": 0,
+          "responseMessage": null
+        },
+        "rateShopResponses": [
+          {
+            "rateShopType": null,
+            "rateShopCode": null,
+            "valuation": null,
+            "rateShopDate": 0,
+            "validEndDate": 0,
+            "carrierCode": null,
+            "modeCode": null,
+            "cost": 0,
+            "additionalCost": 0,
+            "deliveryDate": 0,
+            "transitDays": 0,
+            "responseMessage": null
+          }
+        ]
+      }
+    ]
+  }
+}
