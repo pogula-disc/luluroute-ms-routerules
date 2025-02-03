@@ -111,7 +111,8 @@ public class BusinessRulesMaintenanceServiceImpl implements BusinessRulesMainten
                         searchRequest.getDestinationState(),
                         searchRequest.getDestinationCity(),
                         searchRequest.getDestinationZip(),
-                        searchRequest.getWeight());
+                        searchRequest.getWeight(),
+                        searchRequest.getDeclaredValue());
         if (routeRulesEntities.isEmpty()) {
             throw new RecordNotFoundException(String.format("Route Rule with search request, %s, was not found in database.", searchRequest));
         } else {

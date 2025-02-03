@@ -31,6 +31,7 @@ public class RouteRuleSearchRequest {
     String destinationCity;
     String destinationZip;
     double weight;
+    Double declaredValue;
     
 
 }

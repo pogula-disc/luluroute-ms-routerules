@@ -20,6 +20,6 @@ public class QueryConstants {
 
     public static final String RULE_FILTER_QUERY = " SELECT  * FROM DOMAIN.evaluate_route_rules" +
             "(domain.list_to_array(:targetCarrierCodes), :hazmat , :orderType, :srcPrimaryEntity, :shipVia, :laneName, :isPOBox, :isMilitary," +
-            " :isResidential, :srcCountry, :srcState, :srcCity, :srcZip, :dstCountry, :dstState, :dstCity, :dstZip, :weight" +
+            " :isResidential, :srcCountry, :srcState, :srcCity, :srcZip, :dstCountry, :dstState, :dstCity, :dstZip, :weight, :declaredValue" +
             ", 1)";
 }

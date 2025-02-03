@@ -5,8 +5,13 @@ import com.logistics.luluroute.domain.rateshop.carrier.RateShopCarrierRatesCache
 import com.logistics.luluroute.redis.shipment.carriermain.CarrierMainPayload;
 import com.logistics.luluroute.redis.shipment.entity.EntityPayload;
 import com.logistics.luluroute.redis.shipment.rateshop.RateShopPayload;
+import com.logistics.luluroute.redis.shipment.tranisttime.TransitTimeCache;
 import com.logistics.luluroute.redis.shipment.tranisttime.TransitTimePayload;
+import com.luluroute.ms.routerules.business.entity.TransitTimeRateCache;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +57,18 @@ public class RedisCacheLoader {
         log.info(String.format(MESSAGE_REDIS_KEY_LOADING, "Rate Profile", key));
         return null;
     }
-
+    
+    @Cacheable(value = "MSTR01-TRANSIT-TIME-RATE", key = "#vehoTransitTimeRateCacheKey", unless = "#result == null")
+    public TransitTimeRateCache getVehoTransitTimeRateCacheByKey(String vehoTransitTimeRateCacheKey) {
+    	log.info("in getVehoTransitTimeRateCacheByKey{} ",vehoTransitTimeRateCacheKey);
+    	return null;
+    }
+    
+    @Cacheable(value = "MSTR01-TRANSIT-TIME-RATE", key = "#vehoTransitTimeRateCacheKey")
+    public TransitTimeRateCache saveVehoTransitTimeRateCacheByKey(
+    		String vehoTransitTimeRateCacheKey, TransitTimeRateCache transitTimePayload) {
+        return transitTimePayload;
+    }
 }
 
 

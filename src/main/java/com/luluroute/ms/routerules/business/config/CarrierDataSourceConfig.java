@@ -13,7 +13,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.sql.DataSource;
 import java.util.Objects;
 
 @Configuration
@@ -29,8 +28,8 @@ public class CarrierDataSourceConfig {
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.carrier.configuration")
-    public DataSource carrierDataSource() {
+    @ConfigurationProperties("spring.datasource.carrier.hikari")
+    public HikariDataSource carrierDataSource() {
         return carrierDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 

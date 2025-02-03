@@ -13,4 +13,8 @@ public class TransitTimeResponse {
     private long responseDeliveryDate;
     private String carrierMode;
     private String failureMessage;
+    
+    //changes for VEHO
+    private Double rate;
+    private int transitDays;
 }

@@ -44,6 +44,7 @@ public class Constants {
     public static final String ROUTE_RULES_TRANSIT_TIME_ERROR = "Transit Time API: Requested Delivery Date can't be validated.";
     public static final String ROUTE_RULES_RESPONSE_DELIVERY_DATE_ERROR = "Business Rules: Error Occurred | Processing the response delivery date";
     public static final String ROUTE_RULES_ENTITY_NOT_FOUND = "Business Rules: Pre-requisite Failed | Entity {%s} not available ";
+    public static final String ROUTE_RULES_TRANSIT_TIME_RATE_NOT_FOUND = "Business Rules: Pre-requisite Failed | TRANSIT_TIME_RATE {%s} not available ";
     public static final String ROUTE_RULES_NOT_RECOMMENDED_SERVICE_FOUND = "No recommended service Found.";
     public static final String ROUTE_RULES_NOT_FOUND_CALC = "%sBusiness Rules: Planned Delivery Date (%s) can't be met. Carrier Delivery Date (%s). Carrier error (%s).";
     public static final String STRING_EMPTY = "";
@@ -62,7 +63,8 @@ public class Constants {
     public static final String TFORCE_RETAIL = "TFIS";
     public static final String TFORCE_ECOMM = "TFEC";
     public static final String UPS = "UPSC";
-    public static final String LSRS = "LSRS";
+    public static final String LASERSHIP = "lasership";
+    public static final String VEHO = "VEHO";
     public static final String CNP = "CNP";
     public static final String RATE_KEY = "%s-%s-%s-%s";
     public static final String CARRIER_MODE = "%s-%s";

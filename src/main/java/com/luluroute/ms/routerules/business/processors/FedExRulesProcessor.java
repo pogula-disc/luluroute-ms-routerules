@@ -15,6 +15,7 @@ import com.luluroute.ms.routerules.business.dto.TransitTimeResponse;
 import com.luluroute.ms.routerules.business.exceptions.MappingFormatException;
 import com.luluroute.ms.routerules.business.exceptions.ShipmentMessageException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -59,8 +60,11 @@ public class FedExRulesProcessor extends AbstractRulesProcessor {
             if(shipOptions.getRulesInclude().isEmpty()) {
                 return rateshopRates;
             }
+            List<String> configuredMode = shipOptions.getRulesInclude().stream()
+                    .filter(rulesIncluded -> rulesIncluded.getTargetCarrierCode().equals(CARRIER_CODE))
+                    .map(rulesMap -> String.valueOf(rulesMap.getTargetCarrierModeCode())).toList();
 
-            RateShopCarrierInput rateShopCarrierInput = buildRateShopCarrierInput(shipmentInfo);
+            RateShopCarrierInput rateShopCarrierInput = buildRateShopCarrierInput(shipmentInfo, configuredMode);
 
             FedexRateshopZoneCache rateshopZoneCache = fedexRateshopRedisService.checkCacheForRateshopZone(rateShopCarrierInput);
             log.debug(String.format(STANDARD_FIELD_INFO, "Rateshop Zone # ", rateshopZoneCache));
@@ -89,21 +93,40 @@ public class FedExRulesProcessor extends AbstractRulesProcessor {
         return rateshopRates;
     }
 
-    private RateShopCarrierInput buildRateShopCarrierInput(ShipmentInfo shipmentInfo) {
+    private RateShopCarrierInput buildRateShopCarrierInput(ShipmentInfo shipmentInfo, List<String> configuredMode) {
         LocationItem addressFrom = shipmentInfo.getShipmentHeader().getOrigin().getAddressFrom();
         LocationItem addressTo = shipmentInfo.getShipmentHeader().getDestination().getAddressTo();
         DimensionItem dimensionDetails = shipmentInfo.getShipmentPieces().get(0).getDimensionDetails();
+
+        String entityCode = shipmentInfo.getShipmentHeader().getOrigin().getEntityCode().toString();
+
+        // Check if the shipment is from a store by EntityCode
+        boolean isFromStore = isEntityCodeNumeric(entityCode);
+
         return RateShopCarrierInput.builder()
                 .originZipCode(formatToFiveDigitZipCode(addressFrom, isZipCodeFormatEnabled, zipCodeFormatCountries))
                 .originCountry(String.valueOf(addressFrom.getCountry()))
                 .destinationZipCode(formatToFiveDigitZipCode(addressTo, isZipCodeFormatEnabled, zipCodeFormatCountries))
                 .destinationCountry(String.valueOf(addressTo.getCountry()))
                 .weight(shipmentInfo.getShipmentPieces().get(0).getWeightDetails().getValue())
-                .width(dimensionDetails.getWidth())
-                .height(dimensionDetails.getHeight())
-                .length(dimensionDetails.getLength())
+                .width(getValidDimension(dimensionDetails.getWidth(), isFromStore))
+                .height(getValidDimension(dimensionDetails.getHeight(), isFromStore))
+                .length(getValidDimension(dimensionDetails.getLength(), isFromStore))
                 .isMilitary(shipmentInfo.getOrderDetails().getIsMilitary())
+                .originEntityCode(String.valueOf(shipmentInfo.getShipmentHeader().getOrigin().getEntityCode()))
+                .modeCodes(Set.copyOf(configuredMode))
                 .build();
     }
-}
 
+    // Validate dimensions
+    private double getValidDimension(Double dimension, boolean isFromStore) {
+        if (isFromStore && (dimension == null || dimension == 0)) {
+            return 1.0;
+        }
+        return dimension != null ? dimension : 0.0;
+    }
+
+    private boolean isEntityCodeNumeric(String entityCode) {
+        return StringUtils.isNumeric(entityCode);
+    }
+}

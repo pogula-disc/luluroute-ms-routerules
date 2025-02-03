@@ -66,6 +66,8 @@ public class BusinessRulesSelector {
     @Autowired
     private CanadaPostRulesProcessor canadaPostRulesProcessor;
     @Autowired
+    private VehoRulesProcessor vehoRulesProcessor;
+    @Autowired
     BusinessRuleHelper businessRuleHelper;
 
 
@@ -115,8 +117,9 @@ public class BusinessRulesSelector {
 
             Set<String> assignedCarriers = new HashSet<>();
             originEntityProfile.getAssignedTransitModes().forEach(assignedTransitModes -> assignedCarriers.add(assignedTransitModes.getCarrierCode()));
+            Double declaredValue = shipmentInfo.getOrderDetails().getDeclaredValueDetails() != null ? shipmentInfo.getOrderDetails().getDeclaredValueDetails().getValue() : null;
 
-            log.info("Rule {} Query Params # IsHazMat#{} getOrderType#{} primarySourceEntity#{} getShipVia#{} getLaneName#{} getIsPOBox#{} getIsMilitary#{} getIsResidential#{} getCountry#{} getState#{} getCity#{} getZipCode#{} getCountry#{} getState#{} getCity#{} getZipCode#{} getWeightDetails#{}", assignedCarriers,
+            log.info("Rule {} Query Params # IsHazMat#{} getOrderType#{} primarySourceEntity#{} getShipVia#{} getLaneName#{} getIsPOBox#{} getIsMilitary#{} getIsResidential#{} getCountry#{} getState#{} getCity#{} getZipCode#{} getCountry#{} getState#{} getCity#{} getZipCode#{} getWeightDetails#{} declaredValue#{}", assignedCarriers,
                     shipmentInfo.getOrderDetails().getIsHazMat() ? 1 : 0,
                     shipmentInfo.getOrderDetails().getOrderType(),
                     primaryEntityCode,
@@ -133,7 +136,8 @@ public class BusinessRulesSelector {
                     shipmentInfo.getShipmentHeader().getDestination().getAddressTo().getState(),
                     shipmentInfo.getShipmentHeader().getDestination().getAddressTo().getCity(),
                     shipmentInfo.getShipmentHeader().getDestination().getAddressTo().getZipCode(),
-                    shipmentInfo.getShipmentPieces().get(0).getWeightDetails().getValue());
+                    shipmentInfo.getShipmentPieces().get(0).getWeightDetails().getValue(),
+                    declaredValue);
 
             // Execute the basic rule filter from db
             List<BusinessRouteRulesEntity> routeRulesEntities = brRepository.loadApplicablesRules(assignedCarriers,
@@ -153,7 +157,8 @@ public class BusinessRulesSelector {
                     String.valueOf(shipmentInfo.getShipmentHeader().getDestination().getAddressTo().getState()),
                     String.valueOf(shipmentInfo.getShipmentHeader().getDestination().getAddressTo().getCity()),
                     String.valueOf(shipmentInfo.getShipmentHeader().getDestination().getAddressTo().getZipCode()),
-                    shipmentInfo.getShipmentPieces().get(0).getWeightDetails().getValue());
+                    shipmentInfo.getShipmentPieces().get(0).getWeightDetails().getValue(),
+                    declaredValue);
 
             if (CollectionUtils.isEmpty(routeRulesEntities))
                 throw new ShipmentMessageException(CODE_PROFILE_DB, ROUTE_RULES_NOT_FOUND, CODE_NO_DATA_DB_SOURCE);
@@ -193,6 +198,7 @@ public class BusinessRulesSelector {
 
             log.debug("Updating rates for each ship option");
             List<RateshopRatesDTO> rateShopRates = updateShipOptionRatesParallel(routeRulesByCarrier, shipmentInfo, ruleProcessorSelector);
+            log.info("Rateshop rates after updated for ship options = {}", rateShopRates);
 
             RouteRules routeRules = condenseRulesForAllCarriers(routeRulesByCarrier);
             if(routeRules.getRulesInclude().isEmpty()) {
@@ -244,14 +250,15 @@ public class BusinessRulesSelector {
      * @param shipmentInfo
      */
     private void overrideLanesForRequestedCarrierNMode(ShipmentInfo shipmentInfo, String primaryEntityCode) {
-        if(isLaneOverrideEnabled &&
-                laneOverrideByOriginEntity.contains(primaryEntityCode) &&
-                !StringUtils.isEmpty(shipmentInfo.getOrderDetails().getRequestedCarrierCode()) &&
-                !StringUtils.isEmpty(shipmentInfo.getOrderDetails().getRequestedShipMode())) {
-
-            shipmentInfo.getOrderDetails().setLaneName(String.format(REQUESTED_CARRIER_CODE_AND_MODE,
-                            shipmentInfo.getOrderDetails().getRequestedCarrierCode(),
-                                        shipmentInfo.getOrderDetails().getRequestedShipMode()));
+        if (isLaneOverrideEnabled && laneOverrideByOriginEntity.contains(primaryEntityCode)) {
+            if (!StringUtils.isEmpty(shipmentInfo.getOrderDetails().getRequestedCarrierCode()) &&
+                    !StringUtils.isEmpty(shipmentInfo.getOrderDetails().getRequestedShipMode())) {
+                shipmentInfo.getOrderDetails().setLaneName(String.format(REQUESTED_CARRIER_CODE_AND_MODE,
+                        shipmentInfo.getOrderDetails().getRequestedCarrierCode(),
+                        shipmentInfo.getOrderDetails().getRequestedShipMode()));
+            } else if (!StringUtils.isEmpty(shipmentInfo.getOrderDetails().getRequestedCarrierCode())) {
+                shipmentInfo.getOrderDetails().setLaneName(shipmentInfo.getOrderDetails().getRequestedCarrierCode());
+            }
 
             log.info("Override lanes {} for primary entity {}",
                     shipmentInfo.getOrderDetails().getLaneName(), primaryEntityCode);
@@ -276,7 +283,8 @@ public class BusinessRulesSelector {
         		Map.entry(UPS, upsRulesProcessor),
         		Map.entry(GOBOLT, goBoltRulesProcessor),
         		Map.entry(CNP,canadaPostRulesProcessor),
-        		Map.entry(LSRS, laserShipRulesProcessor))
+        		Map.entry(VEHO, vehoRulesProcessor),
+        		Map.entry(LASERSHIP, laserShipRulesProcessor))
         		);
     }
 

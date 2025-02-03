@@ -36,7 +36,8 @@ public interface BusinessRouteRulesRepository extends JpaRepository<BusinessRout
                                                         @Param("dstState") String destinationState,
                                                         @Param("dstCity") String destinationCity,
                                                         @Param("dstZip") String destinationZip,
-                                                        @Param("weight") double weight
+                                                        @Param("weight") double weight,
+                                                        @Param("declaredValue") Double declaredValue
     );
 
     Optional<BusinessRouteRulesEntity> findByRouteRuleId(UUID routeRuleId);

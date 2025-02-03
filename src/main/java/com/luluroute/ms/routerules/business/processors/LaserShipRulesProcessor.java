@@ -25,7 +25,7 @@ import static com.logistics.luluroute.domain.rateshop.carrier.RateShopCarrierHel
 import static com.luluroute.ms.routerules.business.exceptions.ExceptionConstants.CODE_NO_DATA_RATE_SOURCE;
 import static com.luluroute.ms.routerules.business.exceptions.ExceptionConstants.CODE_PROFILE_RATE;
 import static com.luluroute.ms.routerules.business.processors.helper.BusinessRuleHelper.eliminateAllShipOptionsForError;
-import static com.luluroute.ms.routerules.business.util.Constants.LSRS;
+import static com.luluroute.ms.routerules.business.util.Constants.LASERSHIP;
 import static com.luluroute.ms.routerules.business.util.Constants.RATE_KEY;
 import static com.luluroute.ms.routerules.business.util.Constants.RATE_NOT_FOUND;
 import static com.luluroute.ms.routerules.business.util.Constants.STANDARD_FIELD_INFO;
@@ -39,7 +39,7 @@ public class LaserShipRulesProcessor extends AbstractRulesProcessor {
     private String carrierRateShopUrl;
     @Value("${config.serviceurl.lsrp.transit-time}")
     private String transitTimeUrl;
-    private static final String CARRIER_CODE = LSRS;
+    private static final String CARRIER_CODE = LASERSHIP;
 
     @Override
     public void updateShipOptionDates(RouteRules shipOptions, ShipmentInfo shipmentInfo, EntityPayload entityProfile)

@@ -73,6 +73,7 @@ public class BusinessRuleArtifactService {
             List<TransitTimes> transitTimesList = new ArrayList<>();
             transitTimesList.add(transitTimes);
 
+            log.info("{}", String.format(STANDARD_FIELD_INFO, "RateShopRates", rateShopRates));
             List<Rates> rates = rateShopRates.stream()
                     .map(rate -> Rates.newBuilder()
                             .setCarrierCode(rate.getCarrierCode())
@@ -82,6 +83,7 @@ public class BusinessRuleArtifactService {
                             .setFinalCost(0)
                             .build())
                     .toList();
+            log.info("{}", String.format(STANDARD_FIELD_INFO, "Rates", rates));
 
             ArtifactBody artifactBody = ArtifactBody.newBuilder()
                     .setRouteRules(shipOptions)

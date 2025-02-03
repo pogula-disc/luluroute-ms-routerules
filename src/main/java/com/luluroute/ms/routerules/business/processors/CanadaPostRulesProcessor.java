@@ -62,7 +62,7 @@ public class CanadaPostRulesProcessor extends AbstractRulesProcessor {
             LocationItem addressTo = shipmentInfo.getShipmentHeader().getDestination().getAddressTo();
             DimensionItem dimensionDetails = shipmentInfo.getShipmentPieces().get(0).getDimensionDetails();
             MeasureItem weightDetails = shipmentInfo.getShipmentPieces().get(0).getWeightDetails();
-
+            String orderType = String.valueOf(shipmentInfo.getOrderDetails().getOrderType());
             String key = String.format(RATE_KEY, CARRIER_CODE,
                     addressFrom.getZipCode(),
                     addressTo.getZipCode(),
@@ -71,7 +71,7 @@ public class CanadaPostRulesProcessor extends AbstractRulesProcessor {
             List<String> configuredMode = shipOptions.getRulesInclude().stream()
                     .filter(rulesIncluded -> rulesIncluded.getTargetCarrierCode().equals(CARRIER_CODE))
                     .map(rulesMap -> String.valueOf(rulesMap.getTargetCarrierModeCode())).toList();
-            RateShopCarrierInput rateShopInput = buildRateShopCarrierInput(originEntityCode, addressFrom, addressTo, dimensionDetails, weightDetails, configuredMode);
+            RateShopCarrierInput rateShopInput = buildRateShopCarrierInput(originEntityCode, addressFrom, addressTo, dimensionDetails, weightDetails, configuredMode, orderType);
 
             log.info(String.format(STANDARD_FIELD_INFO, "RateShopRateKey #", key));
             rateshopRates = redisCacheLoader.getRateForCarrier(key, rateShopInput, carrierRateShopUrl, CARRIER_CODE, shipOptions)
@@ -92,7 +92,7 @@ public class CanadaPostRulesProcessor extends AbstractRulesProcessor {
     }
 
     private RateShopCarrierInput buildRateShopCarrierInput(String originEntityCode, LocationItem addressFrom, LocationItem addressTo, DimensionItem dimensionDetails,
-                                                           MeasureItem weightDetails, List<String> configuredMode) {
+                                                           MeasureItem weightDetails, List<String> configuredMode , String orderType) {
         return RateShopCarrierInput.builder()
                 .originEntityCode(originEntityCode)
                 .originZipCode(String.valueOf(addressFrom.getZipCode()))
@@ -100,10 +100,15 @@ public class CanadaPostRulesProcessor extends AbstractRulesProcessor {
                 .destinationZipCode(String.valueOf(addressTo.getZipCode()))
                 .destinationCountry(String.valueOf(addressTo.getCountry()))
                 .weight(weightDetails.getValue())
-                .width(dimensionDetails.getWidth())
-                .length(dimensionDetails.getLength())
-                .height(dimensionDetails.getHeight())
+                .width(getValidDimension(dimensionDetails.getWidth()))
+                .length(getValidDimension(dimensionDetails.getLength()))
+                .height(getValidDimension(dimensionDetails.getHeight()))
                 .modeCodes(Set.copyOf(configuredMode))
+                .orderType(orderType)
                 .build();
+    }
+
+    private Double getValidDimension(Double dimension) {
+        return (dimension == null || dimension == 0) ? 1.0 : dimension;
     }
 }

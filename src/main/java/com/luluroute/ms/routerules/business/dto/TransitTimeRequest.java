@@ -1,5 +1,6 @@
 package com.luluroute.ms.routerules.business.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class TransitTimeRequest {
     private String orderType;
     private String originEntityCode;
@@ -28,4 +30,6 @@ public class TransitTimeRequest {
     private String currency;
     private String originState;
     private String destinationState;
+    private String destinationCity;
+    private boolean isMilitary;
 }

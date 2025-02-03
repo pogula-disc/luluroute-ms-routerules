@@ -1,5 +1,6 @@
 package com.luluroute.ms.routerules.helper;
 
+import com.logistics.luluroute.domain.Shipment.Service.DestinationInfo;
 import com.logistics.luluroute.domain.Shipment.Service.ShipmentInfo;
 import com.logistics.luluroute.redis.shipment.entity.AssignedTransitModes;
 import com.logistics.luluroute.redis.shipment.entity.EntityPayload;
@@ -11,8 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumSet;
-
-import static com.luluroute.ms.routerules.business.util.Constants.STANDARD_INFO;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -29,11 +29,13 @@ public class TransitTimeHelper {
 	 */
 	public AssignedTransitModes getAssignedTransitModes(EntityPayload entityProfile, String carrierCode,
 			String carrierModeCode, String orderType) {
-		String msg = "AssignedTransitModes.getAssignedTransitModes()";
-
+		log.info("Loading assgined transit details for carrier code {} >> carrier mode {} >> ordertype {}", carrierCode,
+				carrierModeCode, orderType);
 		for (AssignedTransitModes assignedTransitModes : entityProfile.getAssignedTransitModes()) {
-			if (carrierCode.equalsIgnoreCase(assignedTransitModes.getCarrierCode()) && carrierModeCode.equalsIgnoreCase(assignedTransitModes.getModeCode())) {
-				if (isRetailAssignedTransitMode(orderType, assignedTransitModes.getRef1())) {
+			if (carrierCode.equalsIgnoreCase(assignedTransitModes.getCarrierCode())
+					&& carrierModeCode.equalsIgnoreCase(assignedTransitModes.getModeCode())) {
+				if (isRetailAssignedTransitMode(orderType, assignedTransitModes.getRef1())
+						|| isStratAssignedTransitMode(orderType, assignedTransitModes.getRef1())) {
 					return assignedTransitModes;
 				} else if (isNonRetailAssignedTransitMode(orderType, assignedTransitModes.getRef1())) {
 					return assignedTransitModes;
@@ -63,9 +65,20 @@ public class TransitTimeHelper {
 				.valueOfContent(null != shipmentInfo.getOrderDetails().getDeclaredValueDetails()
 						? shipmentInfo.orderDetails.getDeclaredValueDetails().getValue()
 						: 0)
-				.currency(getCurrencyCode(shipmentInfo)).build();
+				.currency(getCurrencyCode(shipmentInfo))
+				.isMilitary(shipmentInfo.getOrderDetails().isMilitary())
+				.destinationCity(getDestinationCityName(shipmentInfo.getShipmentHeader().getDestination()))
+				.build();
 	}
-	
+
+	private String getDestinationCityName(DestinationInfo destination) {
+		if (Objects.nonNull(destination.getAddressTo()) && StringUtils.isNotBlank(destination.getAddressTo().getCity())) {
+			return destination.getAddressTo().getCity();
+		} else {
+			return null;
+		}
+	}
+
 	private String getCurrencyCode(ShipmentInfo shipmentInfo) {
 		String currencyCode = "USD";
 		if (null != shipmentInfo.getShipmentPieces().get(0).cartonsDetails.get(0).itemValue) {
@@ -92,6 +105,16 @@ public class TransitTimeHelper {
 		return OrderTypes.isRetailOrder(shipmentOrderType)
 				&& !StringUtils.isEmpty(transitModeOrderType)
 				&& transitModeOrderType.equalsIgnoreCase("RETAIL");
+	}
+	
+	/**
+	 * @param shipmentOrderType    Shipment Message Order Type
+	 * @param transitModeOrderType Current Assigned Transit Mode Order Type
+	 * @return true if Shipment Message is STRAT , COMM or B2B,
+	 */
+	private boolean isStratAssignedTransitMode(String shipmentOrderType, String transitModeOrderType) {
+		return OrderTypes.isStratOrder(shipmentOrderType) && !StringUtils.isEmpty(transitModeOrderType)
+				&& transitModeOrderType.equalsIgnoreCase(shipmentOrderType);
 	}
 
 	/**

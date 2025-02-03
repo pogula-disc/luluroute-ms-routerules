@@ -14,7 +14,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.sql.DataSource;
 import java.util.Objects;
 
 @Configuration
@@ -32,8 +31,8 @@ public class RouteRuleDataSourceConfig {
 
     @Primary
     @Bean
-    @ConfigurationProperties("spring.datasource.routerule.configuration")
-    public DataSource routeRuleDataSource() {
+    @ConfigurationProperties("spring.datasource.routerule.hikari")
+    public HikariDataSource routeRuleDataSource() {
         return routeRuleDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 

@@ -1,11 +1,15 @@
 package com.luluroute.ms.routerules.business.carrier.service;
 
 import com.logistics.luluroute.avro.shipment.service.ShipmentInfo;
+import com.logistics.luluroute.redis.shipment.carriermain.CarrierMainPayload;
+import com.logistics.luluroute.redis.shipment.carriermain.TransitModes;
 import com.luluroute.ms.routerules.business.carrier.entity.EntityApplicableHoliday;
 import com.luluroute.ms.routerules.business.carrier.entity.EntityHoliday;
 import com.luluroute.ms.routerules.business.carrier.repository.EntityAppHolidayRepository;
 import com.luluroute.ms.routerules.business.carrier.repository.EntityHolidayRepository;
 import com.luluroute.ms.routerules.business.config.HolidayServiceConfig;
+import com.luluroute.ms.routerules.business.exceptions.DefaultTransitTimeFailureException;
+import com.luluroute.ms.routerules.business.service.RedisRehydrateService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,9 @@ public class HolidayService {
     @Autowired
     HolidayServiceConfig holidayServiceConfig;
 
+    @Autowired
+    private RedisRehydrateService redisRehyderateService;
+
     /**
      * @param shipmentInfoAPI
      * @param carrierId
@@ -46,8 +53,10 @@ public class HolidayService {
         String msg = "ShipmentTransitTimeService.getHolidaySet()";
         SimpleDateFormat dateFormat = new SimpleDateFormat(FROM_DATE_FORMAT);
         try {
+            CarrierMainPayload carrierProfile = redisRehyderateService.getCarrierByCode(carrierId);
+
             List<EntityApplicableHoliday> applicableHolidayList = appHolidayRepository.findApplicableHolidays(
-                    carrierId, carrierMode, String.valueOf(shipmentInfoAPI.getShipmentHeader().getOrigin().getAddressFrom().getCountry()),
+                    carrierProfile.getCarrierId(), this.getCarrierModeCodeId(carrierProfile, carrierMode), String.valueOf(shipmentInfoAPI.getShipmentHeader().getOrigin().getAddressFrom().getCountry()),
                     String.valueOf(shipmentInfoAPI.getShipmentHeader().getOrigin().getAddressFrom().getState()),
                     String.valueOf(shipmentInfoAPI.getShipmentHeader().getOrigin().getAddressFrom().getCity()));
 
@@ -75,4 +84,20 @@ public class HolidayService {
             throw e;
         }
     }
+
+    private String getCarrierModeCodeId(CarrierMainPayload carrierPayload, String modeCode) {
+        String carrierModeId = "";
+        if (null != carrierPayload) {
+            for (TransitModes mode : carrierPayload.getTransitModes()) {
+                if (modeCode.equalsIgnoreCase(mode.getModeCode())) {
+                    carrierModeId = mode.getModeId();
+                    break;
+                }
+            }
+        } else {
+            throw new DefaultTransitTimeFailureException("Carrier payload not available in cache ");
+        }
+        return carrierModeId;
+    }
+
 }

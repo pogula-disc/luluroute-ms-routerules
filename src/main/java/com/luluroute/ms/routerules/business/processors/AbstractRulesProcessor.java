@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.luluroute.ms.routerules.business.exceptions.ExceptionConstants.*;
@@ -51,12 +52,12 @@ public abstract class AbstractRulesProcessor {
     private RestPublisher<List<TransitTimeRequest>, List<TransitTimeResponse>> restPublisher;
     @Value("${config.instoreDate.applicable: true}")
     private boolean instoreDateApplicable;
-    @Value("${config.instoreDate.orderTypes: ALLOC}")
-    private String instoreDateOrderTypes;
+    @Value("#{${config.instoreDate.orderTypes}}")
+    private Map<String,String> instoreDateOrderTypes;
     @Value("${config.plannedDeliveryDate.override: true}")
     private boolean pddOverride;
-    @Value("${config.plannedDeliveryDate.not-applicable-orderTypes: ALLOC}")
-    private String pddNAOrderTypes;
+    @Value("#{${config.plannedDeliveryDate.not-applicable-orderTypes}}")
+    private  Map<String,String> pddNAOrderTypes;
     @Value("${config.feature.rateshop.zipcode-format.enabled}")
     protected boolean isZipCodeFormatEnabled;
     @Value("${config.feature.rateshop.zipcode-format.countries}")
@@ -81,6 +82,7 @@ public abstract class AbstractRulesProcessor {
                     .build());
             shipOption.setBaseRate(1.0);
         });
+        log.info("RateShopRatesDTOS in route rules: {}", rateshopRateDTOS);
 
         // For future carrier, if any common rate lookup
         return rateshopRateDTOS;
@@ -189,6 +191,7 @@ public abstract class AbstractRulesProcessor {
         String msg = "AbstractRulesProcessor.updatePlannedDeliveryDateForShipOptions()";
         List<RulesInclude> validShipOptions = new ArrayList<>();
         long plannedDeliveryDate = getPlannedDeliveryDate(shipmentInfo);
+        log.info(String.format(STANDARD_FIELD_INFO, "Updated PDD", plannedDeliveryDate));
         shipOptions.getRulesInclude().forEach(shipOption -> {
             try {
                 log.debug("Getting planned delivery date for Carrier Code: {} & Carrier Mode Code: {}",
@@ -333,12 +336,16 @@ public abstract class AbstractRulesProcessor {
             log.debug(" Input PlannedDeliveryDate {} , Calculated PlannedDeliveryDate: {}", plannedDeliveryDate, carrierDeliveryDate);
 
             if (checkRuleMatchPriorityDate(carrierDeliveryDate, plannedDeliveryDate)) {
-                if (pddOverride && !pddNAOrderTypes.equalsIgnoreCase(String.valueOf(shipmentInfo.getOrderDetails().getOrderType()))) {
-                    log.debug(String.format(STANDARD_FIELD_INFO, "Overriding PlannedDeliveryDate", transitTimeResponse.getResponseDeliveryDate()));
-                    return transitTimeResponse.getResponseDeliveryDate();
-                } else {
-                    return plannedDeliveryDate;
+                // PDD override with PDD calculated with carrier transit
+                // Except ALLOC/SPECIAL order by as per configured DC
+                if (pddOverride) {
+                    String DCs =  pddNAOrderTypes.get(String.valueOf(shipmentInfo.getOrderDetails().getOrderType()));
+                    if (null != DCs && DCs.contains(String.valueOf(shipmentInfo.getShipmentHeader().getOrigin().getEntityCode())))
+                        return plannedDeliveryDate;
                 }
+
+                log.debug(String.format(STANDARD_FIELD_INFO, "Overriding PlannedDeliveryDate", transitTimeResponse.getResponseDeliveryDate()));
+                return transitTimeResponse.getResponseDeliveryDate();
             }
         }
 
@@ -365,12 +372,17 @@ public abstract class AbstractRulesProcessor {
     }
 
     private long getPlannedDeliveryDate(ShipmentInfo shipmentInfo) {
-        if (instoreDateApplicable &&
-                instoreDateOrderTypes.contains(String.valueOf(shipmentInfo.getOrderDetails().getOrderType())) &&
-                shipmentInfo.getTransitDetails().getDateDetails().getInStoreDate() > 0)
-            return shipmentInfo.getTransitDetails().getDateDetails().getInStoreDate();
-        else
-            return shipmentInfo.getTransitDetails().getDateDetails().getPlannedDeliveryDate();
+        if (instoreDateApplicable && instoreDateOrderTypes.containsKey(String.valueOf(shipmentInfo.getOrderDetails().getOrderType()))){
+
+            String applicableDCs =   instoreDateOrderTypes.get(String.valueOf(shipmentInfo.getOrderDetails().getOrderType()));
+            String originDC =  String.valueOf(shipmentInfo.getShipmentHeader().getOrigin().getEntityCode());
+            log.info("PDD override - config DCs # {} originDC # {} ", applicableDCs , originDC );
+            if (StringUtils.isNotEmpty(originDC) && applicableDCs.contains(originDC) &&
+                        shipmentInfo.getTransitDetails().getDateDetails().getInStoreDate() > 0)
+                                return shipmentInfo.getTransitDetails().getDateDetails().getInStoreDate();
+        }
+        //  as-is PlannedDeliveryDate
+        return shipmentInfo.getTransitDetails().getDateDetails().getPlannedDeliveryDate();
     }
 
     private static boolean isSameMode(

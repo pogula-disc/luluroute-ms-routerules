@@ -15,14 +15,8 @@ public interface EntityAppHolidayRepository extends JpaRepository<EntityApplicab
     @Query(value = """
             select * from transit.enttholidayapplicable h
 
-            inner join domain.enttcarrier c
-              on h.carrierid is null or h.carrierid = c.carrierid
-
-            inner join domain.enttcarriermode m
-              on h.modeid is null or h.modeid = m.modeid
-
-            where (h.carrierid is null or :carrierId = cast(h.carrierid as varchar) or :carrierId = c.entitycode)
-              and (h.modeid is null or :modeId = cast(h.modeid as varchar) or :modeId = m.modecode)
+            where (h.carrierid is null or :carrierId = cast(h.carrierid as varchar))
+              and (h.modeid is null or :modeId = cast(h.modeid as varchar))
               and (h.country is null or :country = h.country)
               and (h.state is null or :state = h.state)
               and (h.city is null or :city = h.city)
